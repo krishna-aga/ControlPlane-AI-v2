@@ -4,3 +4,13 @@ asyncpg
 pydantic
 pyyaml
 python-dotenv
+bcrypt==5.0.0
+pyjwt==2.13.0
+email-validator==2.3.0
+httpx==0.28.1
+presidio-analyzer==2.2.364
+spacy==3.8.16
+en_core_web_lg @ https://github.com/explosion/spacy-models/releases/download/en_core_web_lg-3.8.0/en_core_web_lg-3.8.0-py3-none-any.whl
+--extra-index-url https://download.pytorch.org/whl/cpu
+torch==2.13.0
+transformers==5.16.1

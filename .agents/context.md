@@ -64,6 +64,24 @@ Match the layered approach already agreed:
 4. Resolver/lock tests — one per lock shape, using the org-baseline/tenant-support-bot pair from PRD §3.4.1 as fixtures.
 5. Golden end-to-end tests — real orchestrator, **mocked LLM client** (deterministic scripted response, injected via dependency injection so `call_llm()` never hits a real API in tests). Assert on the final ledger row, not just the HTTP response.
 
+## Documentation
+
+`.agents/decisions/DECISIONS.md` is, for now, agent/dev-facing — living in `.agents/`
+rather than a top-level `docs/` on purpose, since it's currently written for whoever
+(human or agent) picks this project back up, not yet for an outside reader. It may move
+back to a judge-facing `docs/` folder later; don't assume that framing until it does.
+Whenever a notable implementation decision, gap-fill beyond what the PRD specifies, or
+a real bug gets found and fixed, add an entry there. State the problem, the decision,
+and why it matters — not a raw debug transcript. Keep it in sync as the build
+progresses; don't let it fall behind what's actually in the code.
+
+`.agents/open-questions/OPEN_QUESTIONS.md` is for the other kind of finding: things
+that are genuinely *unresolved*, not decisions already made. If something comes up
+that needs a real direction call from a human (a tradeoff nobody's picked a side of,
+a fork where either answer is defensible) rather than a decision you can make and
+justify yourself, log it there instead of quietly picking one path. Move an entry into
+DECISIONS.md (and delete it from here) once it's actually resolved.
+
 ## What to build first
 
 1. Neon schema: `bundles` table, `ledger` table (JSONB for signals/modifiers), migrations.

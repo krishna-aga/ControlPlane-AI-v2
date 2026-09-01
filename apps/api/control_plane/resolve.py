@@ -41,8 +41,8 @@ def validate_locks(layer: dict, layer_name: str) -> None:
             )
 
 
-def resolve(org: dict, tenant: dict) -> tuple[dict, list[dict]]:
-    validate_locks(org, "org-baseline")
+def resolve(org: dict, tenant: dict, org_name: str = "org-baseline") -> tuple[dict, list[dict]]:
+    validate_locks(org, org_name)
     validate_locks(tenant, "tenant")
 
     merged = {k: v for k, v in deepcopy(org).items() if k != "locks"}
@@ -65,7 +65,7 @@ def resolve(org: dict, tenant: dict) -> tuple[dict, list[dict]]:
                     "field": path,
                     "requested": tenant_value,
                     "enforced": org_value,
-                    "locked_by": "org-baseline",
+                    "locked_by": org_name,
                 }
             )
             # merged keeps org_value — no change

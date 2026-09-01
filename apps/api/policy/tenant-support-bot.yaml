@@ -1,9 +1,0 @@
-input_checks_enabled:
-  secrets: false     # attempts to override a locked field — rejected, org's true wins
-  pii: false          # unlocked — tenant's own choice, allowed
-
-output_t1_checks_enabled:
-  toxicity: true      # unlocked — tenant turns on what org left off
-
-output_pii_redact_threshold: 0.6   # locked at 0.8, but 0.6 is *stricter* (lower) — allowed
-toxicity_mild_action: regenerate    # unlocked — tenant's own pick

@@ -17,7 +17,7 @@ def _hash_fields(fields: dict) -> str:
 def compile_bundle(
     org: dict, tenant: dict, policy_name: str, version: int, source_layers: list[str]
 ) -> tuple[dict, list[dict]]:
-    fields, clamp_events = resolve(org, tenant)
+    fields, clamp_events = resolve(org, tenant, org_name=source_layers[0])
 
     if fields["input_pii_review_threshold"] >= fields["input_pii_redact_threshold"]:
         raise CompileError("input_pii_review_threshold must be < input_pii_redact_threshold")
