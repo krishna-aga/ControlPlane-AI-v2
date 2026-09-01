@@ -1,0 +1,26 @@
+input_checks_enabled:
+  secrets: true
+  injection: true
+  pii: true
+
+output_t0_checks_enabled:
+  secrets: true
+  canary: true
+
+output_t1_checks_enabled:
+  pii: true
+  toxicity: false
+
+input_pii_review_threshold: 0.4
+input_pii_redact_threshold: 0.8
+output_pii_review_threshold: 0.4
+output_pii_redact_threshold: 0.8
+toxicity_regenerate_threshold: 0.5
+toxicity_block_threshold: 0.85
+toxicity_mild_action: flag_visible
+fail_mode: open
+
+locks:
+  - input_checks_enabled.secrets
+  - output_t0_checks_enabled.canary
+  - output_pii_redact_threshold
