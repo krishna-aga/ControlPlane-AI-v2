@@ -83,3 +83,19 @@ pre { font-family: var(--font-mono); font-size: 12px; background: var(--surface-
 .agent-card a { font-size: 12.5px; color: var(--accent-text); text-decoration: none; padding: 6px 10px; border-radius: var(--radius); background: var(--accent-bg); }
 
 .empty-state { text-align: center; padding: 40px 20px; color: var(--text-muted); font-size: 13px; }
+
+.lp-tabs { display: flex; gap: 4px; margin-bottom: 16px; border-bottom: 0.5px solid var(--border); }
+.lp-tab { padding: 8px 14px; font-size: 13px; border: none; background: none; cursor: pointer; color: var(--text-secondary); border-bottom: 2px solid transparent; margin-bottom: -1px; }
+.lp-tab.active { color: var(--accent-text); border-bottom-color: var(--accent); font-weight: 500; }
+
+.lp-table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+.lp-table th { text-align: left; font-weight: 500; color: var(--text-secondary); padding: 6px 8px; border-bottom: 0.5px solid var(--border-strong); }
+.lp-table td { padding: 6px 8px; border-bottom: 0.5px solid var(--border); vertical-align: top; }
+.lp-table tr.differs { background: var(--warn-bg); }
+
+.metric-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 16px; }
+.metric-card { background: var(--surface-0); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 12px 14px; }
+.metric-card .value { font-size: 22px; font-weight: 600; }
+.metric-card .label { font-size: 11.5px; color: var(--text-muted); margin-top: 2px; }
+
+select { height: 36px; font-size: 13px; padding: 0 8px; border: 0.5px solid var(--border); border-radius: var(--radius); background: var(--surface-1); color: var(--text-primary); }

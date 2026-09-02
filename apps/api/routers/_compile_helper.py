@@ -10,12 +10,24 @@ from db.queries import (
 
 
 async def compile_and_persist_for_agent(
-    conn, organization_id: int, agent_id: int, org_name: str, agent_name: str
+    conn,
+    organization_id: int,
+    agent_id: int,
+    org_name: str,
+    agent_name: str,
+    promote: bool = True,
+    label: str | None = None,
 ) -> tuple[dict | None, list[dict]]:
     """Shared by both policy endpoints — an org-layer edit recompiles every
     agent under that org, an agent-layer edit recompiles just that one agent.
     Returns (None, []) if either layer doesn't exist yet (org policy must be
-    set before an agent can be compiled)."""
+    set before an agent can be compiled).
+
+    `promote` defaults to True so existing policy-edit flows keep today's
+    behavior (compiling makes the bundle live immediately). The learning
+    plane's calibration flow (PRD §6.1 step 5) is the one caller that passes
+    `promote=False` — the new version is stored but doesn't go live until
+    someone explicitly promotes it via the version picker."""
     org_row = await get_latest_org_layer(conn, organization_id)
     agent_row = await get_latest_agent_layer(conn, agent_id)
     if org_row is None or agent_row is None:
@@ -43,5 +55,7 @@ async def compile_and_persist_for_agent(
         source_layers=bundle["_meta"]["source_layers"],
         fields=bundle["fields"],
         clamp_events=clamp_events,
+        promote=promote,
+        label=label,
     )
     return dict(row), clamp_events

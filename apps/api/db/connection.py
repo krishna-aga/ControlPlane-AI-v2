@@ -1,12 +1,25 @@
+import asyncio
 import json
+import logging
 import os
 
 import asyncpg
 from dotenv import load_dotenv
 
 load_dotenv()
+logger = logging.getLogger(__name__)
 
 _pool: asyncpg.Pool | None = None
+
+# Neon's serverless compute can be suspended between sessions and takes a
+# few seconds to wake on the next connection — long enough to blow past
+# asyncpg's connect timeout on the very first attempt at cold start (seen
+# repeatedly in dev: `TimeoutError` out of `asyncpg.create_pool`, which
+# previously crashed the whole app with "Application startup failed").
+# Retrying a couple of times with a short backoff is the standard mitigation.
+_POOL_INIT_RETRIES = 3
+_POOL_INIT_BACKOFF_SECONDS = 3.0
+_POOL_INIT_ERRORS = (TimeoutError, ConnectionError, OSError)
 
 # Errors asyncpg raises when a pooled connection was silently closed on
 # Neon's side (idle-connection recycling, compute suspend/resume) between
@@ -36,12 +49,29 @@ async def get_pool() -> asyncpg.Pool:
         # before Neon's own pooler closes them out from under us (see
         # _STALE_CONNECTION_ERRORS above) — reduces how often that retry is needed,
         # doesn't eliminate the race entirely.
-        _pool = await asyncpg.create_pool(
-            dsn=os.environ["DATABASE_URL"],
-            statement_cache_size=0,
-            max_inactive_connection_lifetime=60,
-            init=_init_connection,
-        )
+        # min_size=1: asyncpg's default (10) opens ten connections concurrently on
+        # startup, which just multiplies how many can individually time out while
+        # Neon's compute is still waking up — one connection to retry is cheaper
+        # and just as effective at unblocking startup.
+        for attempt in range(_POOL_INIT_RETRIES + 1):
+            try:
+                _pool = await asyncpg.create_pool(
+                    dsn=os.environ["DATABASE_URL"],
+                    min_size=1,
+                    statement_cache_size=0,
+                    max_inactive_connection_lifetime=60,
+                    init=_init_connection,
+                )
+                break
+            except _POOL_INIT_ERRORS as e:
+                if attempt == _POOL_INIT_RETRIES:
+                    raise
+                logger.warning(
+                    "DB pool init attempt %d/%d failed (%s) — Neon compute is "
+                    "probably still waking up, retrying in %.0fs",
+                    attempt + 1, _POOL_INIT_RETRIES + 1, e, _POOL_INIT_BACKOFF_SECONDS,
+                )
+                await asyncio.sleep(_POOL_INIT_BACKOFF_SECONDS)
     return _pool
 
 

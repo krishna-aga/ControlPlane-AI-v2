@@ -5,12 +5,14 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from data_plane.detectors import pii, toxicity
 from db.connection import close_pool, get_pool
-from routers import agents, auth, check, ledger, policies
+from learning_plane.demo_seed import ensure_demo_org
+from routers import agents, auth, check, ledger, learning, policies
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    await get_pool()
+    pool = await get_pool()
+    await ensure_demo_org(pool)
     # PRD §4.4: models warmed at startup, not on the first request
     pii.warm_up()
     toxicity.warm_up()
@@ -32,3 +34,4 @@ app.include_router(agents.router, prefix="/agents", tags=["agents"])
 app.include_router(policies.router, prefix="/policies", tags=["policies"])
 app.include_router(check.router, tags=["check"])
 app.include_router(ledger.router, prefix="/ledger", tags=["ledger"])
+app.include_router(learning.router, prefix="/learning", tags=["learning"])
