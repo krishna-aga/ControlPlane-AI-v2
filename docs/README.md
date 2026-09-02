@@ -99,14 +99,9 @@ auto-seeded demo org was removed.
 
 ## Source of truth
 
-The actual specification lives in [`.agents/PRD_V1_Consolidated.md`](<../.agents/PRD_V1_Consolidated (1).md>)
-and the build plan in [`.agents/context.md`](../.agents/context.md) — this
-`docs/` tree explains what was *actually built* against that spec, including
-every place a real decision had to be made that the spec left open, and every
-place something was deliberately left out. The full decision-by-decision
-engineering log (bugs found, fixes verified, evidence behind each tradeoff)
-lives in [`.agents/decisions/DECISIONS.md`](../.agents/decisions/DECISIONS.md);
-unresolved and resolved product questions live in
-[`.agents/questions/`](../.agents/questions/OPEN_QUESTIONS.md). This `docs/`
-tree is the curated, judge-facing version of that same story — organized by
-component instead of by chronology.
+This `docs/` tree explains what was *actually built*, including every place
+a real decision had to be made that the original spec left open, and every
+place something was deliberately left out — organized by component rather
+than by chronology. It's kept in sync with the code as part of the same work
+that changes it, so treat it as reliable, current documentation rather than
+a snapshot.

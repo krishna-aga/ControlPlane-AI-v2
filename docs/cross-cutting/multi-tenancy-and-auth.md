@@ -84,8 +84,7 @@ looked like a networking bug in the frontend when the real cause was an
 unhandled database error in the auth path. Fixed with `max_inactive_connection_lifetime=60`
 on the pool (proactively recycles idle connections) plus a `with_db_retry()`
 wrapper that retries this specific class of error once, applied to
-`get_current_org` since it's the highest-traffic path in the whole app. Full
-writeup: [`.agents/decisions/DECISIONS.md`](../../.agents/decisions/DECISIONS.md) §9.
+`get_current_org` since it's the highest-traffic path in the whole app.
 
 ## Cascading recompilation
 

@@ -6,9 +6,10 @@ A React SPA (Vite, `react-router-dom`) that exercises the real API end to end
 
 ## Built from a real reference, not from scratch
 
-[`.agents/controlplane_demo.html`](../../.agents/controlplane_demo.html) was a pure frontend mock with no backend — a
-single HTML file with in-page JS simulating detectors and fusion, used as the
-UI/UX and visual reference. This app matches its **flow and visual language**
+An internal reference HTML mock (not part of this repository) was a pure
+frontend mock with no backend — a single HTML file with in-page JS
+simulating detectors and fusion, used as the UI/UX and visual reference.
+This app matches its **flow and visual language**
 (the color tokens, card/badge/trace-chip styling, the chat + pipeline-trace
 layout) exactly, while replacing every piece of in-page simulated logic with
 real calls to the FastAPI backend. `apps/web/src/index.css` reuses the demo's
@@ -42,7 +43,7 @@ an unauthenticated visitor lands on `/login` instead of a broken page.
 | `AgentsList.jsx` | Create/list agents; each links to its policy screen and chat demo |
 | `AgentPolicy.jsx` | YAML editor for one agent's layer; compile shows the resolved bundle JSON and any clamp events |
 | `Chat.jsx` | The demo's four preset scenarios (injection, card number, canary leak, toxic+PII) plus free-text input, `POST /check`, renders the pipeline trace |
-| `LearningPlane.jsx` | Four required pages (`.agents/Learning_Plane_PRD_Draft.md` §0), one tab each: **Audit Ledger** (KPIs + row browser + hash-chain verify), **Reviewer Queue** (KPIs + approve/reject), **Calibration + Metrics** (FP/FN cards + calibration chart, computed live from the mock dataset — no run button, no waiting), **Policy Versions** (version list + promote, shadow-deploy picker + diff table, calibration → new-policy-version confirm flow) |
+| `LearningPlane.jsx` | Tabs: **Audit Ledger** (KPIs + row browser + hash-chain verify), **Calibration + Metrics** (FP/FN cards + per-check calibration graphs, computed live from the mock dataset — no run button, no waiting; Demo Org only), **Policy Versions** (version list + promote, shadow-deploy picker + diff table, calibration → new-policy-version confirm flow). A fourth tab, **Reviewer Queue** (KPIs + approve/reject), is built but currently left out of the tab nav. |
 
 Policy editors work in YAML text (parsed client-side with `js-yaml`, matching
 the demo's own editing experience) even though the API itself speaks JSON —
