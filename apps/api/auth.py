@@ -43,7 +43,7 @@ async def get_current_org(authorization: str = Header(default=None)) -> dict:
     pool = await get_pool()
     org = await with_db_retry(
         pool.fetchrow,
-        "SELECT id, name, email, created_at FROM organizations WHERE id = $1",
+        "SELECT id, name, email, is_demo, created_at FROM organizations WHERE id = $1",
         payload["organization_id"],
     )
     if org is None:

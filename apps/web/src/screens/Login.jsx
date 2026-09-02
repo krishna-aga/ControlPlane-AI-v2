@@ -7,6 +7,7 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [demoLoading, setDemoLoading] = useState(false);
   const navigate = useNavigate();
 
   async function handleSubmit(e) {
@@ -21,6 +22,20 @@ export default function Login() {
       setError(err.detail || "Login failed");
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function handleViewDemo() {
+    setError(null);
+    setDemoLoading(true);
+    try {
+      const { token, organization } = await api.demoLogin();
+      setSession(token, organization);
+      navigate("/agents");
+    } catch (err) {
+      setError(err.detail || "Demo is not available right now");
+    } finally {
+      setDemoLoading(false);
     }
   }
 
@@ -53,6 +68,15 @@ export default function Login() {
       <p className="hint">
         No organization yet? <Link to="/signup">Sign up</Link>
       </p>
+      <div className="card" style={{ marginTop: 8 }}>
+        <p className="sub" style={{ marginBottom: 10 }}>
+          Just want to see the learning plane's calibration + metrics demo? It runs against a fixed sample policy
+          and a 100-case mock dataset — no signup needed.
+        </p>
+        <button className="secondary" onClick={handleViewDemo} disabled={demoLoading} style={{ width: "100%" }}>
+          {demoLoading ? "Loading demo…" : "View demo"}
+        </button>
+      </div>
     </div>
   );
 }

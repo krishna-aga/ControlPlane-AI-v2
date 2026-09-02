@@ -7,6 +7,7 @@ import OrgPolicy from "./screens/OrgPolicy";
 import AgentsList from "./screens/AgentsList";
 import AgentPolicy from "./screens/AgentPolicy";
 import Chat from "./screens/Chat";
+import LearningPlane from "./screens/LearningPlane";
 
 function RequireAuth({ children }) {
   return getToken() ? children : <Navigate to="/login" replace />;
@@ -28,6 +29,7 @@ export default function App() {
         <Route path="/agents" element={<AgentsList />} />
         <Route path="/agents/:agentId/policy" element={<AgentPolicy />} />
         <Route path="/agents/:agentId/chat" element={<Chat />} />
+        <Route path="/agents/:agentId/learning" element={<LearningPlane />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

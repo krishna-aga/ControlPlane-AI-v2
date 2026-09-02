@@ -61,13 +61,3 @@ rewritten (`git filter-repo` + force-push).
 **What to do:** rotate only, or also do the history rewrite? Depends on whether the
 repo is/will be public — nobody's confirmed that or decided yet.
 
-## 5. `GET /ledger` (list + hash-chain verify) isn't built yet
-
-The ledger is written to correctly and its integrity has been checked manually
-(walking the chain in a throwaway script), but there's no actual endpoint to list
-ledger rows or run that verification on demand — useful for both the reviewer-queue
-story (§6) and for demoing tamper-evidence live rather than by script.
-
-**What to do:** build it — not really a fork in direction, just not yet done. Listed
-here so it doesn't get lost.
-

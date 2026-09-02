@@ -1,0 +1,16 @@
+{
+  "name": "controlplane-ai",
+  "private": true,
+  "version": "0.0.0",
+  "scripts": {
+    "install:api": "cd apps/api && python3 -m venv .venv && .venv/bin/pip install --upgrade pip && .venv/bin/pip install -r requirements.txt && ([ -f .env ] || cp .env.example .env)",
+    "install:web": "npm install --prefix apps/web",
+    "install:all": "npm install && npm run install:api && npm run install:web",
+    "dev:api": "cd apps/api && .venv/bin/uvicorn main:app --reload --port 8000",
+    "dev:web": "npm run dev --prefix apps/web",
+    "dev": "concurrently -n api,web -c blue,green \"npm run dev:api\" \"npm run dev:web\""
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.0"
+  }
+}

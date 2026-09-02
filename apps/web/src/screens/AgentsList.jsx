@@ -73,6 +73,7 @@ export default function AgentsList() {
               <div className="actions">
                 <Link to={`/agents/${a.id}/policy`}>Policy</Link>
                 <Link to={`/agents/${a.id}/chat`}>Chat demo</Link>
+                <Link to={`/agents/${a.id}/learning`}>Learning plane</Link>
               </div>
             </div>
           ))}

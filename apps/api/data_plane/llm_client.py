@@ -12,13 +12,23 @@ by design, per the PRD's dependency-injection requirement for testing
 call_llm().
 """
 
+import asyncio
 import os
 
 import httpx
 
 from data_plane.detectors.canary import CANARY_TOKEN
 
-GEMINI_MODEL = os.environ.get("GEMINI_MODEL", "gemini-3.6-flash")
+# A batch caller (the learning-plane eval runner, PRD §5) can throw ~100
+# real calls at Gemini's free-tier rate limit in a short window; a live
+# `/check` request can hit the same 429 on a noisy neighbor. A few retries
+# with backoff absorbs a transient rate-limit without the caller needing to
+# know anything about it — only 429 is retried, any other error still
+# raises immediately.
+RATE_LIMIT_RETRIES = 3
+RATE_LIMIT_BACKOFF_SECONDS = 5.0
+
+GEMINI_MODEL = os.environ.get("GEMINI_MODEL", "gemini-3.5-flash")
 GEMINI_API_URL = f"https://generativelanguage.googleapis.com/v1beta/models/{GEMINI_MODEL}:generateContent"
 
 # The canary token lives in the system instruction, never in a user-visible
@@ -52,11 +62,17 @@ async def call_llm(prompt: str, retry: bool = False) -> str:
         "contents": [{"role": "user", "parts": [{"text": prompt}]}],
     }
 
-    try:
-        async with httpx.AsyncClient(timeout=15.0) as client:
-            resp = await client.post(GEMINI_API_URL, params={"key": api_key}, json=payload)
-    except httpx.RequestError as e:
-        raise LLMError(f"Gemini request failed: {e}") from e
+    for attempt in range(RATE_LIMIT_RETRIES + 1):
+        try:
+            async with httpx.AsyncClient(timeout=15.0) as client:
+                resp = await client.post(GEMINI_API_URL, params={"key": api_key}, json=payload)
+        except httpx.RequestError as e:
+            raise LLMError(f"Gemini request failed: {e}") from e
+
+        if resp.status_code == 429 and attempt < RATE_LIMIT_RETRIES:
+            await asyncio.sleep(RATE_LIMIT_BACKOFF_SECONDS * (attempt + 1))
+            continue
+        break
 
     if resp.status_code != 200:
         raise LLMError(f"Gemini returned {resp.status_code}: {resp.text[:300]}")
