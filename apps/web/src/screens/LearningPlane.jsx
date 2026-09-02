@@ -318,6 +318,9 @@ function CalibrationMetricsTab({ agentId, onPolicyCreated }) {
         Computed directly from the 100-case hand-authored mock dataset (pre-authored responses and detector
         signals) via the real fusion logic — no live pipeline execution, no LLM calls, no detector calls.
       </p>
+
+      <CreateVersionFlow agentId={agentId} onChanged={onPolicyCreated} />
+
       {error && <div className="banner error">{error}</div>}
 
       {metrics && (
@@ -417,7 +420,10 @@ function CalibrationMetricsTab({ agentId, onPolicyCreated }) {
               agentId={agentId}
               field={calibration.continuous.output_pii.field}
               value={selectedThreshold}
-              onCreated={() => setSelectedThreshold(null)}
+              onCreated={() => {
+                setSelectedThreshold(null);
+                onPolicyCreated();
+              }}
             />
           )}
 
@@ -563,6 +569,140 @@ function CreatePolicyFlow({ agentId, field, value, onCreated }) {
         </button>
       </div>
       {banner && <div className={`banner ${banner.type}`}>{banner.text}</div>}
+    </div>
+  );
+}
+
+// ---- Standalone "Create New Policy Version" — general-purpose, not tied ----
+// ---- to any calibration selection. Edit the agent's whole current policy, ----
+// ---- compile, then explicitly choose whether to promote it. ----
+
+function CreateVersionFlow({ agentId, onChanged }) {
+  const [open, setOpen] = useState(false);
+  const [orgContent, setOrgContent] = useState(null);
+  const [agentText, setAgentText] = useState("");
+  const [compiling, setCompiling] = useState(false);
+  const [promoting, setPromoting] = useState(false);
+  const [compiled, setCompiled] = useState(null);
+  const [clampEvents, setClampEvents] = useState([]);
+  const [banner, setBanner] = useState(null);
+
+  async function openEditor() {
+    setBanner(null);
+    setCompiled(null);
+    const [org, agentPolicy] = await Promise.all([api.getOrgPolicy(), api.getAgentPolicy(agentId)]);
+    setOrgContent(org.content);
+    setAgentText(yaml.dump(agentPolicy.content));
+    setOpen(true);
+  }
+
+  async function compile() {
+    setBanner(null);
+    let content;
+    try {
+      content = yaml.load(agentText);
+    } catch (e) {
+      setBanner({ type: "error", text: "YAML parse error: " + e.message });
+      return;
+    }
+
+    setCompiling(true);
+    try {
+      const result = await api.postAgentPolicy(agentId, content, { promote: false });
+      setCompiled(result.bundle);
+      setClampEvents(result.clamp_events || []);
+      onChanged();
+    } catch (e) {
+      setBanner({ type: "error", text: e instanceof ApiError ? e.detail : e.message });
+    } finally {
+      setCompiling(false);
+    }
+  }
+
+  async function decide(runInProduction) {
+    if (!runInProduction) {
+      setBanner({
+        type: "ok",
+        text: `v${compiled.version} saved — not running in production. The previous version stays live; promote v${compiled.version} later from Policy Versions if you change your mind.`,
+      });
+      return;
+    }
+    setPromoting(true);
+    try {
+      await api.promoteBundle(agentId, compiled.id);
+      setBanner({ type: "ok", text: `v${compiled.version} is now running in production.` });
+      onChanged();
+    } catch (e) {
+      setBanner({ type: "error", text: e instanceof ApiError ? e.detail : e.message });
+    } finally {
+      setPromoting(false);
+    }
+  }
+
+  function reset() {
+    setOpen(false);
+    setCompiled(null);
+    setBanner(null);
+  }
+
+  if (!open) {
+    return (
+      <div className="row" style={{ marginTop: 0, marginBottom: 16 }}>
+        <button className="primary" onClick={openEditor}>
+          Create New Policy Version
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="card" style={{ marginBottom: 16 }}>
+      <h2>Create new policy version</h2>
+      <label>Org-baseline policy (read-only)</label>
+      <pre>{yaml.dump(orgContent)}</pre>
+      <label style={{ marginTop: 12 }}>Agent policy — editable</label>
+      <textarea value={agentText} onChange={(e) => setAgentText(e.target.value)} spellCheck={false} disabled={!!compiled} />
+
+      {!compiled && (
+        <div className="row">
+          <button className="primary" disabled={compiling} onClick={compile}>
+            {compiling ? "Compiling…" : "Compile"}
+          </button>
+          <button className="secondary" onClick={reset} disabled={compiling}>
+            Cancel
+          </button>
+        </div>
+      )}
+
+      {clampEvents.map((e, i) => (
+        <div key={i} className="banner warn">
+          {e.field} — requested {JSON.stringify(e.requested)}, enforced {JSON.stringify(e.enforced)} (locked by{" "}
+          {e.locked_by})
+        </div>
+      ))}
+
+      {compiled && !banner && (
+        <div className="row">
+          <span>Compiled v{compiled.version}. Run this version in production now?</span>
+          <button className="primary" disabled={promoting} onClick={() => decide(true)}>
+            {promoting ? "Promoting…" : "Yes, promote it"}
+          </button>
+          <button className="secondary" disabled={promoting} onClick={() => decide(false)}>
+            No, keep current version live
+          </button>
+        </div>
+      )}
+
+      {banner && (
+        <>
+          <div className={`banner ${banner.type}`}>{banner.text}</div>
+          <div className="row">
+            <button className="secondary" onClick={reset}>
+              Done
+            </button>
+          </div>
+        </>
+      )}
     </div>
   );
 }
