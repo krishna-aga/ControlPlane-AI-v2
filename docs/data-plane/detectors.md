@@ -6,7 +6,7 @@ action — the orchestrator reduces each detector's matches to one
 `{source, type, score, status}` signal before it ever reaches fusion or the
 ledger. Source: `apps/api/data_plane/detectors/`.
 
-All five detectors follow the build order in [`.agents/context.md`](../../.agents/context.md): get
+All five detectors follow the same build order: get
 something working fast with regex/keywords, then swap in the real
 library/model once the pipeline is proven end-to-end. Three of the five have
 now made that swap; two (secrets, injection) were already exactly right as
@@ -122,8 +122,7 @@ assumed:
 was judged more important than avoiding a false positive on a geography
 question. Both directions were verified after the change — the address test
 case now flags the name *and* "Dehradun"; "capital of France" is confirmed to
-still flag "France," which is now a known, accepted cost, not a bug. Full
-history: [`.agents/questions/CLOSED_QUESTIONS.md`](../../.agents/questions/CLOSED_QUESTIONS.md).
+still flag "France," which is now a known, accepted cost, not a bug.
 
 ## Toxicity — swapped from a keyword stub to a real classifier
 

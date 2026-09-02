@@ -165,9 +165,9 @@ locking blocked:
 {"field": "input_checks_enabled.secrets", "requested": false, "enforced": true, "locked_by": "Acme Corp"}
 ```
 
-`locked_by` is the *real organization's name*, not a hardcoded label — see
-[Decisions §7](../../.agents/decisions/DECISIONS.md) for the bug this used to
-be (`"org-baseline"` printed literally, regardless of which org it was).
+`locked_by` is the *real organization's name*, not a hardcoded label — this
+used to print `"org-baseline"` literally regardless of which org it was,
+fixed once the bug was found.
 
 ## `compile()`
 
@@ -238,8 +238,7 @@ committing even when the subsequent compile was rejected — leaving a policy
 layer version in the database with no bundle to match it, a silent
 inconsistency between "what was requested" and "what's actually enforced."
 Fixed by wrapping both writes in one transaction, so a rejected compile rolls
-back the layer write too. Full writeup:
-[Decisions §2](../../.agents/decisions/DECISIONS.md).
+back the layer write too.
 
 ## API surface
 
@@ -257,7 +256,7 @@ read or compile its own agents.
 
 ## Multi-version bundles and `is_production`
 
-Added for the learning plane (`.agents/Learning_Plane_PRD_Draft.md` §1.1):
+Added for the learning plane:
 `bundles` gained `is_production BOOLEAN` and `label TEXT`. Multiple compiled
 versions can exist per agent at once — not just a linear "latest wins"
 history — and the data plane's `POST /check` loads whichever one is flagged

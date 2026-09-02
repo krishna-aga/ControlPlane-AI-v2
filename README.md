@@ -20,8 +20,7 @@ The system is organized into three planes:
   calibration → new-policy-version loop.
 
 For the full architectural deep dive (with a request-flow diagram) see
-[`docs/README.md`](docs/README.md). For current build status and internal
-project notes see [`.agents/context.md`](.agents/context.md).
+[`docs/README.md`](docs/README.md).
 
 Repository: https://github.com/krishna-aga/ControlPlane-AI-v2
 
@@ -155,7 +154,6 @@ apps/
     src/api/        fetch wrapper / API client
     src/components/ shared UI (pipeline trace panel, calibration chart)
 docs/             judge-facing architecture writeup, organized by plane
-.agents/          internal working notes, PRDs, and project context (see context.md)
 ```
 
 See [`docs/README.md`](docs/README.md) for how a request actually flows
@@ -190,8 +188,7 @@ on the login screen instead.
 
 **Where are the automated tests?**
 There isn't a committed automated test suite yet — verification so far has
-been ad-hoc scripts run during development. See `.agents/context.md` for the
-current state of this gap.
+been ad-hoc scripts run during development.
 
 ## Maintainers
 

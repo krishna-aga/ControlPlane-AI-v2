@@ -241,13 +241,12 @@ a free-tier Gemini key both failed to complete — the first crashed on an
 unrelated transient Neon connection blip after a batch of real successes and
 429s; the second, after fixing that, ran until the account's **daily** quota
 was fully exhausted (confirmed via the API's own "You exceeded your current
-quota" message — not a per-minute limit a retry could absorb). See
-`.agents/questions/CLOSED_QUESTIONS.md` for the full incident.
+quota" message — not a per-minute limit a retry could absorb).
 
 **The fix wasn't a retry strategy — it was removing live execution from the
 feature entirely.** `synthetic_test_set_100.json`
-(`apps/api/learning_plane/data/` — copied out of `.agents/` so the app
-doesn't depend on that directory sticking around) is now fully self-contained
+(`apps/api/learning_plane/data/` — the app's own copy, not read from
+anywhere external) is now fully self-contained
 mock data: every case ships a hand-authored `mock_response` and pre-authored
 `mock_signals` in the real signal shape (`{source, type, score, status}`),
 authored against the actual org-baseline thresholds in use (0.4/0.8 PII
@@ -394,7 +393,6 @@ human still has to separately decide to make it live.
 rate on real, unpredictable traffic (as opposed to the hand-authored mock set
 above, which never touches a live model). Not built — it needs meaningful API budget (every audit is a
 separate LLM call, run at scale against sampled live traffic), which isn't
-available right now. Documented as a design reference and a future-work
-proposal only; see `.agents/Learning_Plane_PRD_Draft.md` §7 for the full
-system prompt, ledger row shape, and external-facing proposal text if this
-gets picked up later.
+available right now. Documented internally as a design reference and a
+future-work proposal only, with a full system prompt, ledger row shape, and
+external-facing proposal text ready if this gets picked up later.

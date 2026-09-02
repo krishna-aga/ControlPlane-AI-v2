@@ -169,8 +169,7 @@ a HF tokenizer) don't actually run any faster together. What the change
 *does* deliver: the event loop stays unblocked for other concurrent requests,
 and the timeout enforcement above is real. Genuine multi-process parallelism
 would fix the throughput question too, at the cost of loading a second copy
-of each model per worker — an open tradeoff, not decided yet (see
-[`.agents/questions/OPEN_QUESTIONS.md`](../../.agents/questions/OPEN_QUESTIONS.md)).
+of each model per worker — an open tradeoff, not decided yet.
 
 `DETECTOR_TIMEOUT_SECONDS` (2.0s) is an internal orchestrator constant, not a
 policy field — deliberately kept separate from the PRD's rule that no
